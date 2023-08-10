@@ -27,7 +27,7 @@ def extract_questions_offline(
     Infer search queries to retrieve relevant notes to answer user query
     """
     all_questions = text.split("? ")
-    all_questions = [q + "?" for q in all_questions[:-1]] + [all_questions[-1]]
+    all_questions = [f"{q}?" for q in all_questions[:-1]] + [all_questions[-1]]
 
     if not should_extract_questions:
         return all_questions
@@ -80,7 +80,7 @@ def extract_questions_offline(
             .replace('"]', "")
             .split("? ")
         )
-        questions = [q + "?" for q in questions[:-1]] + [questions[-1]]
+        questions = [f"{q}?" for q in questions[:-1]] + [questions[-1]]
         questions = filter_questions(questions)
     except:
         logger.warning(f"Llama returned invalid JSON. Falling back to using user message as search query.\n{response}")
@@ -103,12 +103,11 @@ def filter_questions(questions: List[str]):
         "do not know",
         "do not understand",
     ]
-    filtered_questions = []
-    for q in questions:
-        if not any([word in q.lower() for word in hint_words]):
-            filtered_questions.append(q)
-
-    return filtered_questions
+    return [
+        q
+        for q in questions
+        if all(word not in q.lower() for word in hint_words)
+    ]
 
 
 def converse_offline(
@@ -123,17 +122,15 @@ def converse_offline(
     Converse with user using Llama
     """
     gpt4all_model = loaded_model or GPT4All(model)
-    # Initialize Variables
-    compiled_references_message = "\n\n".join({f"{item}" for item in references})
-
-    # Get Conversation Primer appropriate to Conversation Type
-    if compiled_references_message == "":
-        conversation_primer = user_query
-    else:
+    if compiled_references_message := "\n\n".join(
+        {f"{item}" for item in references}
+    ):
         conversation_primer = prompts.notes_conversation_llamav2.format(
             query=user_query, references=compiled_references_message
         )
 
+    else:
+        conversation_primer = user_query
     # Setup Prompt with Primer or Conversation History
     messages = generate_chatml_messages_with_context(
         conversation_primer,

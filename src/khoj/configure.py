@@ -64,7 +64,7 @@ def configure_server(config: FullConfig, regenerate: bool, search_type: Optional
         state.config_lock.acquire()
         state.processor_config = configure_processor(state.config.processor)
     except Exception as e:
-        logger.error(f"🚨 Failed to configure processor", exc_info=True)
+        logger.error("🚨 Failed to configure processor", exc_info=True)
         raise e
     finally:
         state.config_lock.release()
@@ -75,7 +75,7 @@ def configure_server(config: FullConfig, regenerate: bool, search_type: Optional
         state.SearchType = configure_search_types(state.config)
         state.search_models = configure_search(state.search_models, state.config.search_type)
     except Exception as e:
-        logger.error(f"🚨 Failed to configure search models", exc_info=True)
+        logger.error("🚨 Failed to configure search models", exc_info=True)
         raise e
     finally:
         state.config_lock.release()
@@ -88,7 +88,7 @@ def configure_server(config: FullConfig, regenerate: bool, search_type: Optional
                 state.content_index, state.config.content_type, state.search_models, regenerate, search_type
             )
         except Exception as e:
-            logger.error(f"🚨 Failed to index content", exc_info=True)
+            logger.error("🚨 Failed to index content", exc_info=True)
             raise e
         finally:
             state.config_lock.release()
@@ -170,7 +170,11 @@ def configure_content(
 
     try:
         # Initialize Org Notes Search
-        if (t == None or t.value == state.SearchType.Org.value) and content_config.org and search_models.text_search:
+        if (
+            (t is None or t.value == state.SearchType.Org.value)
+            and content_config.org
+            and search_models.text_search
+        ):
             logger.info("🦄 Setting up search for orgmode notes")
             # Extract Entries, Generate Notes Embeddings
             content_index.org = text_search.setup(
@@ -183,7 +187,7 @@ def configure_content(
 
         # Initialize Markdown Search
         if (
-            (t == None or t.value == state.SearchType.Markdown.value)
+            (t is None or t.value == state.SearchType.Markdown.value)
             and content_config.markdown
             and search_models.text_search
         ):
@@ -198,7 +202,11 @@ def configure_content(
             )
 
         # Initialize PDF Search
-        if (t == None or t.value == state.SearchType.Pdf.value) and content_config.pdf and search_models.text_search:
+        if (
+            (t is None or t.value == state.SearchType.Pdf.value)
+            and content_config.pdf
+            and search_models.text_search
+        ):
             logger.info("🖨️ Setting up search for pdf")
             # Extract Entries, Generate PDF Embeddings
             content_index.pdf = text_search.setup(
@@ -211,7 +219,7 @@ def configure_content(
 
         # Initialize Plaintext Search
         if (
-            (t == None or t.value == state.SearchType.Plaintext.value)
+            (t is None or t.value == state.SearchType.Plaintext.value)
             and content_config.plaintext
             and search_models.text_search
         ):
@@ -227,7 +235,7 @@ def configure_content(
 
         # Initialize Image Search
         if (
-            (t == None or t.value == state.SearchType.Image.value)
+            (t is None or t.value == state.SearchType.Image.value)
             and content_config.image
             and search_models.image_search
         ):
@@ -238,7 +246,7 @@ def configure_content(
             )
 
         if (
-            (t == None or t.value == state.SearchType.Github.value)
+            (t is None or t.value == state.SearchType.Github.value)
             and content_config.github
             and search_models.text_search
         ):
@@ -254,7 +262,7 @@ def configure_content(
 
         # Initialize Notion Search
         if (
-            (t == None or t.value in state.SearchType.Notion.value)
+            (t is None or t.value in state.SearchType.Notion.value)
             and content_config.notion
             and search_models.text_search
         ):
@@ -268,7 +276,11 @@ def configure_content(
             )
 
         # Initialize External Plugin Search
-        if (t == None or t in state.SearchType) and content_config.plugins and search_models.text_search:
+        if (
+            (t is None or t in state.SearchType)
+            and content_config.plugins
+            and search_models.text_search
+        ):
             logger.info("🔌 Setting up search for plugins")
             content_index.plugins = {}
             for plugin_type, plugin_config in content_config.plugins.items():
@@ -339,7 +351,7 @@ def configure_conversation_processor(
     if state_processor_config and state_processor_config.conversation and state_processor_config.conversation.meta_log:
         conversation_processor.meta_log = state_processor_config.conversation.meta_log
         conversation_processor.chat_session = state_processor_config.conversation.chat_session
-        logger.debug(f"Loaded conversation logs from state")
+        logger.debug("Loaded conversation logs from state")
         return conversation_processor
 
     if conversation_logfile.is_file():

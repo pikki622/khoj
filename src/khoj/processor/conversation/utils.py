@@ -117,10 +117,10 @@ def truncate_messages(messages: list[ChatMessage], max_prompt_size, model_name) 
     system_message = messages.pop()
     system_message_tokens = len(encoder.encode(system_message.content))
 
-    tokens = sum([len(encoder.encode(message.content)) for message in messages])
+    tokens = sum(len(encoder.encode(message.content)) for message in messages)
     while (tokens + system_message_tokens) > max_prompt_size and len(messages) > 1:
         messages.pop()
-        tokens = sum([len(encoder.encode(message.content)) for message in messages])
+        tokens = sum(len(encoder.encode(message.content)) for message in messages)
 
     # Truncate current message if still over max supported prompt size by model
     if (tokens + system_message_tokens) > max_prompt_size:

@@ -71,7 +71,7 @@ if not state.demo:
             yaml.dump(yaml.safe_load(state.config.json(by_alias=True)), outfile)
             outfile.close()
 
-        configuration_update_metadata = dict()
+        configuration_update_metadata = {}
 
         if state.config.content_type is not None:
             configuration_update_metadata["github"] = state.config.content_type.github is not None
@@ -359,11 +359,13 @@ async def search(
 
     # Run validation checks
     results: List[SearchResponse] = []
-    if q is None or q == "":
-        logger.warning(f"No query param (q) passed in API call to initiate search")
+    if q is None or not q:
+        logger.warning("No query param (q) passed in API call to initiate search")
         return results
     if not state.search_models or not any(state.search_models.__dict__.values()):
-        logger.warning(f"No search models loaded. Configure a search model before initiating search")
+        logger.warning(
+            "No search models loaded. Configure a search model before initiating search"
+        )
         return results
 
     # initialize variables
@@ -375,7 +377,7 @@ async def search(
     # return cached results, if available
     query_cache_key = f"{user_query}-{n}-{t}-{r}-{score_threshold}-{dedupe}"
     if query_cache_key in state.query_cache:
-        logger.debug(f"Return response from query cache")
+        logger.debug("Return response from query cache")
         return state.query_cache[query_cache_key]
 
     # Encode query with filter terms removed
@@ -385,10 +387,11 @@ async def search(
 
     encoded_asymmetric_query = None
     if t == SearchType.All or t != SearchType.Image:
-        text_search_models: List[TextSearchModel] = [
-            model for model in state.search_models.__dict__.values() if isinstance(model, TextSearchModel)
-        ]
-        if text_search_models:
+        if text_search_models := [
+            model
+            for model in state.search_models.__dict__.values()
+            if isinstance(model, TextSearchModel)
+        ]:
             with timer("Encoding query took", logger=logger):
                 encoded_asymmetric_query = util.normalize_embeddings(
                     text_search_models[0].bi_encoder.encode(
@@ -399,7 +402,11 @@ async def search(
                 )
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        if (t == SearchType.Org or t == SearchType.All) and state.content_index.org and state.search_models.text_search:
+        if (
+            t in [SearchType.Org, SearchType.All]
+            and state.content_index.org
+            and state.search_models.text_search
+        ):
             # query org-mode notes
             search_futures += [
                 executor.submit(
@@ -415,7 +422,7 @@ async def search(
             ]
 
         if (
-            (t == SearchType.Markdown or t == SearchType.All)
+            t in [SearchType.Markdown, SearchType.All]
             and state.content_index.markdown
             and state.search_models.text_search
         ):
@@ -434,7 +441,7 @@ async def search(
             ]
 
         if (
-            (t == SearchType.Github or t == SearchType.All)
+            t in [SearchType.Github, SearchType.All]
             and state.content_index.github
             and state.search_models.text_search
         ):
@@ -452,7 +459,11 @@ async def search(
                 )
             ]
 
-        if (t == SearchType.Pdf or t == SearchType.All) and state.content_index.pdf and state.search_models.text_search:
+        if (
+            t in [SearchType.Pdf, SearchType.All]
+            and state.content_index.pdf
+            and state.search_models.text_search
+        ):
             # query pdf files
             search_futures += [
                 executor.submit(
@@ -507,7 +518,7 @@ async def search(
             ]
 
         if (
-            (t == SearchType.Notion or t == SearchType.All)
+            t in [SearchType.Notion, SearchType.All]
             and state.content_index.notion
             and state.search_models.text_search
         ):
@@ -526,7 +537,7 @@ async def search(
             ]
 
         if (
-            (t == SearchType.Plaintext or t == SearchType.All)
+            t in [SearchType.Plaintext, SearchType.All]
             and state.content_index.plaintext
             and state.search_models.text_search
         ):

@@ -49,7 +49,7 @@ class StreamingChatCallbackHandler(StreamingStdOutCallbackHandler):
 )
 def completion_with_backoff(**kwargs):
     messages = kwargs.pop("messages")
-    if not "openai_api_key" in kwargs:
+    if "openai_api_key" not in kwargs:
         kwargs["openai_api_key"] = os.getenv("OPENAI_API_KEY")
     llm = ChatOpenAI(**kwargs, request_timeout=20, max_retries=1)
     return llm(messages=messages)

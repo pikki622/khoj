@@ -9,7 +9,7 @@ from khoj.processor.plaintext.plaintext_to_jsonl import PlaintextToJsonl
 def test_plaintext_file(tmp_path):
     "Convert files with no heading to jsonl."
     # Arrange
-    entry = f"""
+    entry = """
     Hi, I am a plaintext file and I have some plaintext words.
     """
     plaintextfile = create_file(tmp_path, entry)

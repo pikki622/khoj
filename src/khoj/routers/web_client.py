@@ -54,25 +54,23 @@ if not state.demo:
         }
 
         if state.content_index:
-            successfully_configured.update(
-                {
-                    "pdf": state.content_index.pdf is not None,
-                    "markdown": state.content_index.markdown is not None,
-                    "org": state.content_index.org is not None,
-                    "image": state.content_index.image is not None,
-                    "github": state.content_index.github is not None,
-                    "notion": state.content_index.notion is not None,
-                    "plaintext": state.content_index.plaintext is not None,
-                }
-            )
+            successfully_configured |= {
+                "pdf": state.content_index.pdf is not None,
+                "markdown": state.content_index.markdown is not None,
+                "org": state.content_index.org is not None,
+                "image": state.content_index.image is not None,
+                "github": state.content_index.github is not None,
+                "notion": state.content_index.notion is not None,
+                "plaintext": state.content_index.plaintext is not None,
+            }
 
         if state.processor_config and state.processor_config.conversation:
-            successfully_configured.update(
-                {
-                    "conversation_openai": state.processor_config.conversation.openai_model is not None,
-                    "conversation_gpt4all": state.processor_config.conversation.gpt4all_model.loaded_model is not None,
-                }
-            )
+            successfully_configured |= {
+                "conversation_openai": state.processor_config.conversation.openai_model
+                is not None,
+                "conversation_gpt4all": state.processor_config.conversation.gpt4all_model.loaded_model
+                is not None,
+            }
 
         return templates.TemplateResponse(
             "config.html",

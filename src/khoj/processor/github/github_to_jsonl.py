@@ -39,7 +39,7 @@ class GithubToJsonl(TextToJsonl):
 
     def process(self, previous_entries=[]):
         if self.config.pat_token is None or self.config.pat_token == "":
-            logger.error(f"Github PAT token is not set. Skipping github content")
+            logger.error("Github PAT token is not set. Skipping github content")
             raise ValueError("Github PAT token is not set. Skipping github content")
         current_entries = []
         for repo in self.config.repos:
@@ -210,8 +210,8 @@ class GithubToJsonl(TextToJsonl):
                 issue_content = {
                     "content": f"## [Issue {issue['number']}]({issue['html_url']}) {issue['title']}\nby {user_url}\n\n{issue['body']}",
                     "path": issue["html_url"],
+                    "created_at": {issue["created_at"]},
                 }
-                issue_content["created_at"] = {issue["created_at"]}
                 if issue["comments"] > 0:
                     issue_content["comments"] = self.get_comments(issue["comments_url"])
                 issues += [issue_content]
