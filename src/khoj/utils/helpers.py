@@ -29,7 +29,11 @@ if TYPE_CHECKING:
 
 
 def is_none_or_empty(item):
-    return item == None or (hasattr(item, "__iter__") and len(item) == 0) or item == ""
+    return (
+        item is None
+        or (hasattr(item, "__iter__") and len(item) == 0)
+        or item == ""
+    )
 
 
 def to_snake_case_from_dash(item: str):
@@ -49,7 +53,7 @@ def get_from_dict(dictionary, *args):
     Returns: dictionary[args[0]][args[1]]... or None if any keys missing"""
     current = dictionary
     for arg in args:
-        if not hasattr(current, "__iter__") or not arg in current:
+        if not hasattr(current, "__iter__") or arg not in current:
             return None
         current = current[arg]
     return current
@@ -57,7 +61,7 @@ def get_from_dict(dictionary, *args):
 
 def merge_dicts(priority_dict: dict, default_dict: dict):
     merged_dict = priority_dict.copy()
-    for key, _ in default_dict.items():
+    for key in default_dict:
         if key not in priority_dict:
             merged_dict[key] = default_dict[key]
         elif isinstance(priority_dict[key], dict) and isinstance(default_dict[key], dict):
@@ -165,7 +169,7 @@ def get_server_id():
             server_id = str(uuid.uuid4())
 
             with open(app_env_filename, "a") as f:
-                f.write("server_id=" + server_id + "\n")
+                f.write(f"server_id={server_id}" + "\n")
     else:
         # If server_id is not found, generate a new one
         server_id = str(uuid.uuid4())
@@ -175,7 +179,7 @@ def get_server_id():
 
         # Write the server_id to the env file
         with open(app_env_filename, "w") as f:
-            f.write("server_id=" + server_id + "\n")
+            f.write(f"server_id={server_id}" + "\n")
 
     return server_id
 
@@ -200,7 +204,7 @@ def log_telemetry(
         "os": platform.system(),
         "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
-    request_body.update(properties or {})
+    request_body |= (properties or {})
     if api:
         # API endpoint on server called by client
         request_body["api"] = api

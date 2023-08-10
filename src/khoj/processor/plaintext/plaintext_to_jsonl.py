@@ -99,17 +99,15 @@ class PlaintextToJsonl(TextToJsonl):
     @staticmethod
     def convert_plaintext_entries_to_maps(entry_to_file_map: dict) -> List[Entry]:
         "Convert each plaintext entries into a dictionary"
-        entries = []
-        for entry, file in entry_to_file_map.items():
-            entries.append(
-                Entry(
-                    raw=entry,
-                    file=file,
-                    compiled=f"{Path(file).stem}\n{entry}",
-                    heading=Path(file).stem,
-                )
+        return [
+            Entry(
+                raw=entry,
+                file=file,
+                compiled=f"{Path(file).stem}\n{entry}",
+                heading=Path(file).stem,
             )
-        return entries
+            for entry, file in entry_to_file_map.items()
+        ]
 
     @staticmethod
     def convert_entries_to_jsonl(entries: List[Entry]):

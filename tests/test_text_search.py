@@ -148,9 +148,9 @@ def test_regenerate_index_with_new_entry(
     assert len(regenerated_notes_model.entries) == 11
     assert len(regenerated_notes_model.corpus_embeddings) == 11
 
-    # verify new entry appended to index, without disrupting order or content of existing entries
-    error_details = compare_index(initial_notes_model, regenerated_notes_model)
-    if error_details:
+    if error_details := compare_index(
+        initial_notes_model, regenerated_notes_model
+    ):
         pytest.fail(error_details, False)
 
     # Cleanup
@@ -186,9 +186,7 @@ def test_update_index_with_duplicate_entries_in_stable_order(
     assert len(initial_index.entries) == len(updated_index.entries) == 1
     assert len(initial_index.corpus_embeddings) == len(updated_index.corpus_embeddings) == 1
 
-    # verify the same entry is added even when there are multiple duplicate entries
-    error_details = compare_index(initial_index, updated_index)
-    if error_details:
+    if error_details := compare_index(initial_index, updated_index):
         pytest.fail(error_details)
 
 
@@ -221,9 +219,7 @@ def test_update_index_with_deleted_entry(org_config_with_only_new_file: TextCont
     assert len(initial_index.entries) == len(updated_index.entries) + 1
     assert len(initial_index.corpus_embeddings) == len(updated_index.corpus_embeddings) + 1
 
-    # verify the same entry is added even when there are multiple duplicate entries
-    error_details = compare_index(updated_index, initial_index)
-    if error_details:
+    if error_details := compare_index(updated_index, initial_index):
         pytest.fail(error_details)
 
 
@@ -250,9 +246,7 @@ def test_update_index_with_new_entry(content_config: ContentConfig, search_model
     assert len(final_notes_model.entries) == len(initial_notes_model.entries) + 1
     assert len(final_notes_model.corpus_embeddings) == len(initial_notes_model.corpus_embeddings) + 1
 
-    # verify new entry appended to index, without disrupting order or content of existing entries
-    error_details = compare_index(initial_notes_model, final_notes_model)
-    if error_details:
+    if error_details := compare_index(initial_notes_model, final_notes_model):
         pytest.fail(error_details, False)
 
     # Cleanup
@@ -275,15 +269,21 @@ def test_text_search_setup_github(content_config: ContentConfig, search_models: 
 
 def compare_index(initial_notes_model, final_notes_model):
     mismatched_entries, mismatched_embeddings = [], []
-    for index in range(len(initial_notes_model.entries)):
-        if initial_notes_model.entries[index].to_json() != final_notes_model.entries[index].to_json():
-            mismatched_entries.append(index)
-
+    mismatched_entries.extend(
+        index
+        for index in range(len(initial_notes_model.entries))
+        if initial_notes_model.entries[index].to_json()
+        != final_notes_model.entries[index].to_json()
+    )
     # verify new entry embedding appended to embeddings tensor, without disrupting order or content of existing embeddings
-    for index in range(len(initial_notes_model.corpus_embeddings)):
-        if not torch.equal(final_notes_model.corpus_embeddings[index], initial_notes_model.corpus_embeddings[index]):
-            mismatched_embeddings.append(index)
-
+    mismatched_embeddings.extend(
+        index
+        for index in range(len(initial_notes_model.corpus_embeddings))
+        if not torch.equal(
+            final_notes_model.corpus_embeddings[index],
+            initial_notes_model.corpus_embeddings[index],
+        )
+    )
     error_details = ""
     if mismatched_entries:
         mismatched_entries_str = ",".join(map(str, mismatched_entries))

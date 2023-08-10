@@ -32,7 +32,7 @@ def download_model(model_name: str):
         return GPT4All(model_name)
 
     # Download the model to a tmp file. Once the download is completed, move the tmp file to the actual file
-    tmp_filename = filename + ".tmp"
+    tmp_filename = f"{filename}.tmp"
 
     try:
         os.makedirs(os.path.dirname(tmp_filename), exist_ok=True)

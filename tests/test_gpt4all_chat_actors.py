@@ -91,9 +91,10 @@ def test_extract_question_with_date_filter_from_relative_year():
         ("dt>='1984-01-01'", "dt<='1984-12-31'"),
     ]
     assert len(response) == 1
-    assert any([start in response[0] and end in response[0] for start, end in expected_responses]), (
-        "Expected date filter to limit to 1984 in response but got: " + response[0]
-    )
+    assert any(
+        start in response[0] and end in response[0]
+        for start, end in expected_responses
+    ), f"Expected date filter to limit to 1984 in response but got: {response[0]}"
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -132,9 +133,10 @@ def test_extract_multiple_implicit_questions_from_message(loaded_model):
     assert len(response) <= 3
 
     for question in response:
-        assert any([expected_response in question.lower() for expected_response in expected_responses]), (
-            "Expected chat actor to ask follow-up questions about Morpheus and Neo, but got: " + question
-        )
+        assert any(
+            expected_response in question.lower()
+            for expected_response in expected_responses
+        ), f"Expected chat actor to ask follow-up questions about Morpheus and Neo, but got: {question}"
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -163,9 +165,10 @@ def test_generate_search_query_using_question_from_chat_history(loaded_model):
 
     # Assert
     assert len(response) >= 1
-    assert any([expected_response in response[0] for expected_response in expected_responses]), (
-        "Expected chat actor to ask for clarification in response, but got: " + response[0]
-    )
+    assert any(
+        expected_response in response[0]
+        for expected_response in expected_responses
+    ), f"Expected chat actor to ask for clarification in response, but got: {response[0]}"
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -192,9 +195,10 @@ def test_generate_search_query_using_answer_from_chat_history(loaded_model):
 
     # Assert
     assert len(response) >= 1
-    assert any([expected_response in response[0] for expected_response in expected_responses]), (
-        "Expected chat actor to mention Darth Vader's daughter, but got: " + response[0]
-    )
+    assert any(
+        expected_response in response[0]
+        for expected_response in expected_responses
+    ), f"Expected chat actor to mention Darth Vader's daughter, but got: {response[0]}"
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -222,9 +226,10 @@ def test_generate_search_query_with_date_and_context_from_chat_history(loaded_mo
     ]
     assert len(response) == 1
     assert "Masai Mara" in response[0]
-    assert any([start in response[0] and end in response[0] for start, end in expected_responses]), (
-        "Expected date filter to limit to April 2000 in response but got: " + response[0]
-    )
+    assert any(
+        start in response[0] and end in response[0]
+        for start, end in expected_responses
+    ), f"Expected date filter to limit to April 2000 in response but got: {response[0]}"
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -236,14 +241,15 @@ def test_chat_with_no_chat_history_or_retrieved_content(loaded_model):
         user_query="Hello, my name is Testatron. Who are you?",
         loaded_model=loaded_model,
     )
-    response = "".join([response_chunk for response_chunk in response_gen])
+    response = "".join(list(response_gen))
 
     # Assert
     expected_responses = ["Khoj", "khoj", "KHOJ"]
-    assert len(response) > 0
-    assert any([expected_response in response for expected_response in expected_responses]), (
-        "Expected assistants name, [K|k]hoj, in response but got: " + response
-    )
+    assert response != ""
+    assert any(
+        expected_response in response
+        for expected_response in expected_responses
+    ), f"Expected assistants name, [K|k]hoj, in response but got: {response}"
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -267,10 +273,10 @@ def test_answer_from_chat_history_and_previously_retrieved_content(loaded_model)
         conversation_log=populate_chat_history(message_list),
         loaded_model=loaded_model,
     )
-    response = "".join([response_chunk for response_chunk in response_gen])
+    response = "".join(list(response_gen))
 
     # Assert
-    assert len(response) > 0
+    assert response != ""
     # Infer who I am and use that to infer I was born in Testville using chat history and previously retrieved notes
     assert "Testville" in response
 
@@ -294,10 +300,10 @@ def test_answer_from_chat_history_and_currently_retrieved_content(loaded_model):
         conversation_log=populate_chat_history(message_list),
         loaded_model=loaded_model,
     )
-    response = "".join([response_chunk for response_chunk in response_gen])
+    response = "".join(list(response_gen))
 
     # Assert
-    assert len(response) > 0
+    assert response != ""
     assert "Testville" in response
 
 
@@ -318,7 +324,7 @@ def test_refuse_answering_unanswerable_question(loaded_model):
         conversation_log=populate_chat_history(message_list),
         loaded_model=loaded_model,
     )
-    response = "".join([response_chunk for response_chunk in response_gen])
+    response = "".join(list(response_gen))
 
     # Assert
     expected_responses = [
@@ -330,10 +336,11 @@ def test_refuse_answering_unanswerable_question(loaded_model):
         "cannot answer",
         "I'm sorry",
     ]
-    assert len(response) > 0
-    assert any([expected_response in response for expected_response in expected_responses]), (
-        "Expected chat actor to say they don't know in response, but got: " + response
-    )
+    assert response != ""
+    assert any(
+        expected_response in response
+        for expected_response in expected_responses
+    ), f"Expected chat actor to say they don't know in response, but got: {response}"
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -346,9 +353,9 @@ def test_answer_requires_current_date_awareness(loaded_model):
 Expenses:Food:Dining  10.00 USD""",
         f"""{datetime.now().strftime("%Y-%m-%d")} "Sagar Ratna" "Dosa for Lunch"
 Expenses:Food:Dining  10.00 USD""",
-        f"""2020-04-01 "SuperMercado" "Bananas"
+        """2020-04-01 "SuperMercado" "Bananas"
 Expenses:Food:Groceries  10.00 USD""",
-        f"""2020-01-01 "Naco Taco" "Burittos for Dinner"
+        """2020-01-01 "Naco Taco" "Burittos for Dinner"
 Expenses:Food:Dining  10.00 USD""",
     ]
 
@@ -358,14 +365,15 @@ Expenses:Food:Dining  10.00 USD""",
         user_query="What did I have for Dinner today?",
         loaded_model=loaded_model,
     )
-    response = "".join([response_chunk for response_chunk in response_gen])
+    response = "".join(list(response_gen))
 
     # Assert
     expected_responses = ["tacos", "Tacos"]
-    assert len(response) > 0
-    assert any([expected_response in response for expected_response in expected_responses]), (
-        "Expected [T|t]acos in response, but got: " + response
-    )
+    assert response != ""
+    assert any(
+        expected_response in response
+        for expected_response in expected_responses
+    ), f"Expected [T|t]acos in response, but got: {response}"
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -378,9 +386,9 @@ def test_answer_requires_date_aware_aggregation_across_provided_notes(loaded_mod
 Expenses:Food:Dining  10.00 USD""",
         f"""{datetime.now().strftime("%Y-%m-%d")} "Sagar Ratna" "Dosa for Lunch"
 Expenses:Food:Dining  10.00 USD""",
-        f"""2020-04-01 "SuperMercado" "Bananas"
+        """2020-04-01 "SuperMercado" "Bananas"
 Expenses:Food:Groceries  10.00 USD""",
-        f"""2020-01-01 "Naco Taco" "Burittos for Dinner"
+        """2020-01-01 "Naco Taco" "Burittos for Dinner"
 Expenses:Food:Dining  10.00 USD""",
     ]
 
@@ -390,10 +398,10 @@ Expenses:Food:Dining  10.00 USD""",
         user_query="How much did I spend on dining this year?",
         loaded_model=loaded_model,
     )
-    response = "".join([response_chunk for response_chunk in response_gen])
+    response = "".join(list(response_gen))
 
     # Assert
-    assert len(response) > 0
+    assert response != ""
     assert "20" in response
 
 
@@ -415,14 +423,15 @@ def test_answer_general_question_not_in_chat_history_or_retrieved_content(loaded
         conversation_log=populate_chat_history(message_list),
         loaded_model=loaded_model,
     )
-    response = "".join([response_chunk for response_chunk in response_gen])
+    response = "".join(list(response_gen))
 
     # Assert
     expected_responses = ["test", "testing"]
     assert len(response.splitlines()) >= 3  # haikus are 3 lines long, but Falcon tends to add a lot of new lines.
-    assert any([expected_response in response.lower() for expected_response in expected_responses]), (
-        "Expected [T|t]est in response, but got: " + response
-    )
+    assert any(
+        expected_response in response.lower()
+        for expected_response in expected_responses
+    ), f"Expected [T|t]est in response, but got: {response}"
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -432,11 +441,11 @@ def test_ask_for_clarification_if_not_enough_context_in_question(loaded_model):
     "Chat actor should ask for clarification if question cannot be answered unambiguously with the provided context"
     # Arrange
     context = [
-        f"""# Ramya
+        """# Ramya
 My sister, Ramya, is married to Kali Devi. They have 2 kids, Ravi and Rani.""",
-        f"""# Fang
+        """# Fang
 My sister, Fang Liu is married to Xi Li. They have 1 kid, Xiao Li.""",
-        f"""# Aiyla
+        """# Aiyla
 My sister, Aiyla is married to Tolga. They have 3 kids, Yildiz, Ali and Ahmet.""",
     ]
 
@@ -446,13 +455,14 @@ My sister, Aiyla is married to Tolga. They have 3 kids, Yildiz, Ali and Ahmet.""
         user_query="How many kids does my older sister have?",
         loaded_model=loaded_model,
     )
-    response = "".join([response_chunk for response_chunk in response_gen])
+    response = "".join(list(response_gen))
 
     # Assert
     expected_responses = ["which sister", "Which sister", "which of your sister", "Which of your sister"]
-    assert any([expected_response in response for expected_response in expected_responses]), (
-        "Expected chat actor to ask for clarification in response, but got: " + response
-    )
+    assert any(
+        expected_response in response
+        for expected_response in expected_responses
+    ), f"Expected chat actor to ask for clarification in response, but got: {response}"
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -468,12 +478,12 @@ def test_chat_does_not_exceed_prompt_size(loaded_model):
         user_query="What numbers come after these?",
         loaded_model=loaded_model,
     )
-    response = "".join([response_chunk for response_chunk in response_gen])
+    response = "".join(list(response_gen))
 
     # Assert
-    assert prompt_size_exceeded_error not in response, (
-        "Expected chat response to be within prompt limits, but got exceeded error: " + response
-    )
+    assert (
+        prompt_size_exceeded_error not in response
+    ), f"Expected chat response to be within prompt limits, but got exceeded error: {response}"
 
 
 # ----------------------------------------------------------------------------------------------------

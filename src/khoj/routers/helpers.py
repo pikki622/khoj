@@ -48,7 +48,7 @@ def update_telemetry_state(
     }
 
     if metadata:
-        user_state.update(metadata)
+        user_state |= metadata
 
     state.telemetry += [
         log_telemetry(
